@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Бот Валера – Интерактивная страница</title>
+  <style>
+    :root {
+      --primary: #2f80ed;
+      --secondary: #f2f2f2;
+      --bg: #fafafa;
+      --text: #333;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background: var(--primary);
+      color: white;
+      padding: 1rem 2rem;
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    button {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 4px;
+      background: var(--primary);
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background: #1c60b7;
+    }
+
+    /* Chat widget */
+    #chat-widget {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 320px;
+      max-height: 480px;
+      background: white;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      display: none;
+      flex-direction: column;
+    }
+
+    #chat-header {
+      background: var(--primary);
+      color: white;
+      padding: 0.5rem 1rem;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #chat-messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+
+    .message {
+      margin-bottom: 0.75rem;
+    }
+
+    .user {
+      text-align: right;
+    }
+
+    #chat-input {
+      display: flex;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    #chat-input input {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+    }
+
+    #chat-input button {
+      border-radius: 0;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+    }
+
+    .close {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Интерактивная страница с Ботом Валерой</h1>
+  </header>
+
+  <main>
+    <button id="btn-chat">Чат с Валерой</button>
+    <button id="btn-assistant">Ассистент</button>
+    <button id="btn-faq">FAQ</button>
+    <button id="btn-about">О нас</button>
+  </main>
+
+  <!-- Chat Widget -->
+  <div id="chat-widget">
+    <div id="chat-header">
+      <span>Валера</span>
+      <span id="close-chat" style="cursor:pointer">&times;</span>
+    </div>
+    <div id="chat-messages"></div>
+    <form id="chat-input">
+      <input type="text" id="chat-text" placeholder="Введите сообщение..." required />
+      <button type="submit">Отправить</button>
+    </form>
+  </div>
+
+  <!-- Assistant Modal -->
+  <div id="assistant-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="close-assistant">&times;</span>
+      <h2>Ассистент</h2>
+      <p>Я ваш персональный ассистент. Чем могу помочь?</p>
+    </div>
+  </div>
+
+  <!-- FAQ Modal -->
+  <div id="faq-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="close-faq">&times;</span>
+      <h2>Часто задаваемые вопросы</h2>
+      <p><strong>Вопрос 1:</strong> Как работает бот Валера?</p>
+      <p>Бот Валера использует простую логику сопоставления ключевых слов, чтобы отвечать на базовые вопросы.</p>
+      <p><strong>Вопрос 2:</strong> Могу ли я задать свой вопрос?</p>
+      <p>Конечно! Нажмите кнопку «Чат с Валерой» и задайте вопрос.</p>
+    </div>
+  </div>
+
+  <!-- About Modal -->
+  <div id="about-modal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="close-about">&times;</span>
+      <h2>О нас</h2>
+      <p>Мы создаём простые веб-решения с дружелюбным интерфейсом.</p>
+    </div>
+  </div>
+
+  <script>
+    // Helper to toggle display
+    function toggle(el, show) {
+      el.style.display = show ? (el.dataset.display || 'flex') : 'none';
+    }
+
+    // Elements
+    const btnChat = document.getElementById('btn-chat');
+    const btnAssistant = document.getElementById('btn-assistant');
+    const btnFAQ = document.getElementById('btn-faq');
+    const btnAbout = document.getElementById('btn-about');
+
+    const chatWidget = document.getElementById('chat-widget');
+    const closeChat = document.getElementById('close-chat');
+
+    const assistantModal = document.getElementById('assistant-modal');
+    const closeAssistant = document.getElementById('close-assistant');
+
+    const faqModal = document.getElementById('faq-modal');
+    const closeFAQ = document.getElementById('close-faq');
+
+    const aboutModal = document.getElementById('about-modal');
+    const closeAbout = document.getElementById('close-about');
+
+    // Show modals/widgets
+    btnChat.addEventListener('click', () => toggle(chatWidget, true));
+    btnAssistant.addEventListener('click', () => toggle(assistantModal, true));
+    btnFAQ.addEventListener('click', () => toggle(faqModal, true));
+    btnAbout.addEventListener('click', () => toggle(aboutModal, true));
+
+    // Close handlers
+    closeChat.addEventListener('click', () => toggle(chatWidget, false));
+    closeAssistant.addEventListener('click', () => toggle(assistantModal, false));
+    closeFAQ.addEventListener('click', () => toggle(faqModal, false));
+    closeAbout.addEventListener('click', () => toggle(aboutModal, false));
+
+    // Close modal on outside click
+    [assistantModal, faqModal, aboutModal].forEach(modal => {
+      modal.addEventListener('click', e => {
+        if (e.target === modal) toggle(modal, false);
+      });
+      // store default display style
+      modal.dataset.display = 'flex';
+    });
+    chatWidget.dataset.display = 'flex';
+
+    // Simple bot logic
+    const chatMessages = document.getElementById('chat-messages');
+    const chatForm = document.getElementById('chat-input');
+    const chatText = document.getElementById('chat-text');
+
+    function addMessage(text, sender = 'bot') {
+      const div = document.createElement('div');
+      div.classList.add('message');
+      if (sender === 'user') div.classList.add('user');
+      div.textContent = text;
+      chatMessages.appendChild(div);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function botReply(userText) {
+      const text = userText.toLowerCase();
+      let reply = 'Простите, я не понял. Можете перефразировать?';
+      if (/привет|здравствуй/.test(text)) {
+        reply = 'Привет! Я Валера. Чем могу помочь?';
+      } else if (/как дела/.test(text)) {
+        reply = 'У меня всё отлично, спасибо что спросили!';
+      } else if (/твоё имя/.test(text)) {
+        reply = 'Меня зовут Валера!';
+      }
+      addMessage(reply, 'bot');
+    }
+
+    chatForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const text = chatText.value.trim();
+      if (!text) return;
+      addMessage(text, 'user');
+      chatText.value = '';
+      setTimeout(() => botReply(text), 500);
+    });
+  </script>
+</body>
+</html>
