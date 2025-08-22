@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Soplejuikin – Все инструменты</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.5/dist/ffmpeg.min.js"></script>
+  <style>
+    /* ======================= THEME ======================= */
+    :root {
+      --bg-primary:#0f172a;--bg-secondary:#1e293b;--text:#e2e8f0;--text-muted:#94a3b8;--accent:#3b82f6;--hover:#2563eb;--card:#334155;--card-hover:#475569;--border:#334155;
+    }
+    [data-theme="light"] {
+      --bg-primary:#f8fafc;--bg-secondary:#e2e8f0;--text:#1e293b;--text-muted:#64748b;--accent:#1d4ed8;--hover:#1e40af;--card:#cbd5e1;--card-hover:#94a3b8;--border:#cbd5e1;
+    }
+    *{margin:0;padding:0;box-sizing:border-box;text-decoration:none;font-family:Poppins,sans-serif}
+    body{background:var(--bg-primary);color:var(--text);min-height:100vh;transition:background .3s,color .3s;overflow-x:hidden}
+
+    /* ======================= LAYOUT ======================= */
+    header.top{display:flex;justify-content:space-between;align-items:center;padding:20px 30px;border-bottom:1px solid var(--border)}
+    header.top h1{font-size:24px;font-weight:700}
+    #themeToggle{background:var(--card);color:var(--text);border:none;padding:8px 16px;border-radius:10px;cursor:pointer}
+    #themeToggle:hover{background:var(--card-hover)}
+
+    .main-section{padding:30px;max-width:1000px;margin:0 auto}
+    .tools-list{display:flex;flex-direction:column;gap:16px}
+    .tool-card{display:flex;align-items:center;gap:24px;background:var(--bg-secondary);padding:20px;border-radius:16px;cursor:pointer;transition:.3s;box-shadow:0 4px 8px rgba(0,0,0,.1)}
+    .tool-card:hover{transform:translateY(-4px);background:var(--card-hover);box-shadow:0 8px 20px rgba(0,0,0,.15)}
+    .tool-icon{font-size:36px;color:#93c5fd}
+    .tool-title{font-size:18px;font-weight:600;margin-bottom:4px}
+    .tool-desc{font-size:14px;color:var(--text-muted)}
+
+    .hidden{display:none}
+    .section{padding:20px 30px}
+    .back-btn{margin-bottom:20px;background:var(--card);border:none;color:var(--text);padding:8px 14px;border-radius:8px;cursor:pointer}
+    .back-btn:hover{background:var(--card-hover)}
+
+    /* ==== CHAT ==== */
+    #chatBox{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:10px;height:70vh}
+    #chatMessages{flex:1;padding:10px;border:1px solid var(--border);border-radius:8px;overflow-y:auto;background:var(--bg-secondary)}
+    .msg{margin-bottom:10px}
+    .user{text-align:right}
+    #chatForm{display:flex;gap:8px}
+    #chatInput{flex:1;padding:8px;border-radius:8px;border:1px solid var(--border);background:var(--bg-primary);color:var(--text)}
+    #chatForm button{padding:8px 14px;border:none;border-radius:8px;background:var(--accent);color:#fff;cursor:pointer}
+
+    /* ==== CONVERTERS ==== */
+    .converter{max-width:600px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+    .progress{height:8px;background:var(--bg-secondary);border-radius:4px;overflow:hidden}
+    .progress div{height:100%;background:var(--accent);width:0%}
+    video, img.converted-preview{max-width:100%;margin-top:12px;border:1px solid var(--border)}
+  </style>
+</head>
+<body>
+
+  <header class="top">
+    <h1>🔧 Soplejuikin Инструменты</h1>
+    <button id="themeToggle">☀️ Светлая</button>
+  </header>
+
+  <!-- ====================== MAIN MENU ===================== -->
+  <section id="menu" class="main-section">
+    <div class="tools-list">
+      <div class="tool-card" data-target="assistant">
+        <div class="tool-icon">🤖</div>
+        <div>
+          <div class="tool-title">Бот-Валера</div>
+          <div class="tool-desc">AI бот отвечает на ваши вопросы.</div>
+        </div>
+      </div>
+      <div class="tool-card" data-target="cheats">
+        <div class="tool-icon">🔓</div>
+        <div>
+          <div class="tool-title">Читы</div>
+          <div class="tool-desc">Библиотека читов для игр.</div>
+        </div>
+      </div>
+      <div class="tool-card" data-target="news">
+        <div class="tool-icon">📣</div>
+        <div>
+          <div class="tool-title">GitHub ссылки</div>
+          <div class="tool-desc">Последние полезные репозитории.</div>
+        </div>
+      </div>
+      <div class="tool-card" data-target="upload">
+        <div class="tool-icon">💵</div>
+        <div>
+          <div class="tool-title">DropFiles</div>
+          <div class="tool-desc">Загружай файлы и зарабатывай.</div>
+        </div>
+      </div>
+      <div class="tool-card" data-target="videoConv">
+        <div class="tool-icon">🎥</div>
+        <div>
+          <div class="tool-title">Конвертер видео</div>
+          <div class="tool-desc">Онлайн конвертация форматов.</div>
+        </div>
+      </div>
+      <div class="tool-card" data-target="imgConv">
+        <div class="tool-icon">🖼️</div>
+        <div>
+          <div class="tool-title">Конвертер фото</div>
+          <div class="tool-desc">WEBP ↔ PNG/JPG и др.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== ASSISTANT ===================== -->
+  <section id="assistant" class="section hidden">
+    <button class="back-btn">← Назад</button>
+    <h2>🤖 Чат-бот Валера</h2>
+    <div id="chatBox">
+      <div id="chatMessages"></div>
+      <form id="chatForm">
+        <input id="chatInput" placeholder="Введите сообщение..." required>
+        <button type="submit">Отправить</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- ====================== CHEATS ===================== -->
+  <section id="cheats" class="section hidden">
+    <button class="back-btn">← Назад</button>
+    <h2>🔓 Список читов</h2>
+    <ul style="margin-top:10px;line-height:1.8">
+      <li><a href="https://example.com/cheat1.zip" download>Cheat #1 – Aimbot.zip</a></li>
+      <li><a href="https://example.com/cheat2.zip" download>Cheat #2 – Wallhack.zip</a></li>
+      <li><a href="https://example.com/cheat3.zip" download>Cheat #3 – ESP.zip</a></li>
+    </ul>
+  </section>
+
+  <!-- ====================== NEWS ===================== -->
+  <section id="news" class="section hidden">
+    <button class="back-btn">← Назад</button>
+    <h2>📣 GitHub ссылки</h2>
+    <ul style="margin-top:10px;line-height:1.8" id="newsList"></ul>
+  </section>
+
+  <!-- ====================== DROPFILES ===================== -->
+  <section id="upload" class="section hidden">
+    <button class="back-btn">← Назад</button>
+    <h2>💵 DropFiles загрузка</h2>
+    <p>Сымитируйте загрузку файла и получите ссылку для заработка.</p><br>
+    <input type="file" id="fakeUpload">
+    <button id="startUpload">Загрузить</button>
+    <p id="uploadStatus" style="margin-top:10px"></p>
+  </section>
+
+  <!-- ====================== VIDEO CONVERTER ===================== -->
+  <section id="videoConv" class="section hidden">
+    <button class="back-btn">← Назад</button>
+    <h2>🎥 Видео-конвертер (в MP4)</h2>
+    <div class="converter">
+      <input type="file" accept="video/*" id="videoInput">
+      <button id="convertVideo">Конвертировать</button>
+      <div class="progress"><div id="videoProg"></div></div>
+      <a id="videoDownload" href="#" download="output.mp4" style="display:none;margin-top:10px">Скачать MP4</a>
+    </div>
+  </section>
+
+  <!-- ====================== IMAGE CONVERTER ===================== -->
+  <section id="imgConv" class="section hidden">
+    <button class="back-btn">← Назад</button>
+    <h2>🖼️ Конвертер изображений (в WEBP)</h2>
+    <div class="converter">
+      <input type="file" accept="image/*" id="imgInput">
+      <button id="convertImg">Конвертировать</button>
+      <a id="imgDownload" href="#" download="output.webp" style="display:none;margin-top:10px">Скачать WEBP</a>
+      <img class="converted-preview" id="imgPreview" style="display:none" />
+    </div>
+  </section>
+
+  <!-- ====================== MOBILE BANNER PLACEHOLDER ===================== -->
+  <div style="height:60px"></div>
+
+  <script>
+    /* ========= THEME TOGGLE ========= */
+    const root=document.documentElement,tt=document.getElementById('themeToggle');
+    function setTheme(th){root.setAttribute('data-theme',th);localStorage.setItem('theme',th);tt.textContent=th==='light'?'🌙 Тёмная':'☀️ Светлая'}
+    setTheme(localStorage.getItem('theme')||'dark');tt.addEventListener('click',()=>setTheme(root.getAttribute('data-theme')==='dark'?'light':'dark'));
+
+    /* ========= NAVIGATION ========= */
+    const menu=document.getElementById('menu');
+    document.querySelectorAll('.tool-card').forEach(c=>c.addEventListener('click',()=>showSection(c.dataset.target)));
+    document.querySelectorAll('.back-btn').forEach(b=>b.addEventListener('click',()=>showSection('menu')));
+    function showSection(id){document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden')}
+
+    /* ========= CHAT BOT ========= */
+    const chatMessages=document.getElementById('chatMessages');
+    function addMsg(t,sender){const d=document.createElement('div');d.className='msg '+(sender||'bot');d.textContent=t;chatMessages.appendChild(d);chatMessages.scrollTop=chatMessages.scrollHeight}
+    function botReply(q){const txt=q.toLowerCase();let r='Не понял, попробуйте иначе.';if(/привет|hello/.test(txt))r='Привет! Чем могу помочь?';else if(/как дела/.test(txt))r='У меня всё отлично!';else if(/тво(ё|е) имя/.test(txt))r='Я Валера, бот.';setTimeout(()=>addMsg(r,'bot'),500)}
+    document.getElementById('chatForm').addEventListener('submit',e=>{e.preventDefault();const v=chatInput.value.trim();if(!v)return;addMsg(v,'user');chatInput.value='';botReply(v)});
+
+    /* ========= NEWS (fetch GitHub repos) ========= */
+    async function loadNews(){try{const res=await fetch('https://api.github.com/search/repositories?q=stars:%3E50000&sort=updated&per_page=5');const js=await res.json();const ul=document.getElementById('newsList');js.items.forEach(r=>{const li=document.createElement('li');li.innerHTML=`<a href="${r.html_url}" target="_blank">${r.full_name}</a> ★${r.stargazers_count}`;ul.appendChild(li)})}catch(e){document.getElementById('newsList').textContent='Ошибка загрузки';}}
+    loadNews();
+
+    /* ========= DROPFILES MOCK ========= */
+    document.getElementById('startUpload').addEventListener('click',()=>{
+      const file=document.getElementById('fakeUpload').files[0];const st=document.getElementById('uploadStatus');if(!file){st.textContent='Выберите файл!';return}
+      st.textContent='Загрузка...';setTimeout(()=>{st.innerHTML=`Загружено! Ваша ссылка: <a href="#" onclick="return false">https://dropfiles.fake/${Date.now()}</a>`},1500)});
+
+    /* ========= VIDEO CONVERTER ========= */
+    const { createFFmpeg, fetchFile } = FFmpeg;
+    const ffmpeg=createFFmpeg({log:true});
+    async function convertVideo(){const input=document.getElementById('videoInput').files[0];if(!input)return alert('Выберите файл');const prog=document.getElementById('videoProg');if(!ffmpeg.isLoaded())await ffmpeg.load();ffmpeg.FS('writeFile','input',await fetchFile(input));await ffmpeg.run('-i','input','-c:v','libx264','output.mp4');const data=ffmpeg.FS('readFile','output.mp4');const url=URL.createObjectURL(new Blob([data.buffer],{type:'video/mp4'}));document.getElementById('videoDownload').href=url;document.getElementById('videoDownload').style.display='inline-block';prog.firstChild?.remove;prog.style.width='100%';}
+    document.getElementById('convertVideo').addEventListener('click',()=>{document.getElementById('videoProg').style.width='0%';convertVideo()});
+
+    /* ========= IMAGE CONVERTER ========= */
+    document.getElementById('convertImg').addEventListener('click',()=>{
+      const file=document.getElementById('imgInput').files[0];if(!file)return alert('Выберите изображение');const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const ctx=c.getContext('2d');ctx.drawImage(img,0,0);c.toBlob(b=>{const dl=document.getElementById('imgDownload');dl.href=URL.createObjectURL(b);dl.style.display='inline-block';document.getElementById('imgPreview').src=dl.href;document.getElementById('imgPreview').style.display='block'} ,'image/webp',0.9);};img.src=url;});
+  </script>
+</body>
+</html>
