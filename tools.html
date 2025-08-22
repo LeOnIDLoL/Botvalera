@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Soplejuikin инструменты</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Основной CSS -->
+  <style>
+    /* Цветовые переменные */
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --accent: #3b82f6;
+      --hover: #2563eb;
+      --card: #334155;
+      --card-hover: #475569;
+      --border: #334155;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #e2e8f0;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --accent: #1d4ed8;
+      --hover: #1e40af;
+      --card: #cbd5e1;
+      --card-hover: #94a3b8;
+      --border: #cbd5e1;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      text-decoration: none;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* Layout */
+    .container {
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .ad {
+      width: 320px;
+      background: var(--bg-secondary);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      overflow-y: auto;
+      border-right: 1px solid var(--border);
+    }
+
+    .ad::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .ad::-webkit-scrollbar-thumb {
+      background: var(--text-muted);
+      border-radius: 4px;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .theme-toggle {
+      background: var(--card);
+      border: none;
+      color: var(--text);
+      padding: 10px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background 0.3s;
+    }
+
+    .theme-toggle:hover {
+      background: var(--card-hover);
+    }
+
+    /* Tools */
+    .tools-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .tool-card {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      padding: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.6s ease-out;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      background: var(--card-hover);
+    }
+
+    .tool-icon {
+      font-size: 36px;
+      color: #93c5fd;
+      flex-shrink: 0;
+    }
+
+    .tool-info {
+      flex: 1;
+    }
+
+    .tool-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .tool-desc {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--text-muted);
+    }
+
+    .loading-logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .loading-logo span { color: #f59e0b; }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .ad { display: none; }
+      .container { flex-direction: column; }
+      .main { padding: 20px 20px 80px; }
+      .tool-card { gap: 16px; padding: 16px; }
+      .tool-icon { font-size: 32px; }
+      .tool-title { font-size: 17px; }
+      .tool-desc { font-size: 13px; }
+    }
+
+    /* Mobile banner */
+    .mobile-ad-banner {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: var(--bg-secondary);
+      padding: 10px 0;
+      text-align: center;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      height: 70px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .mobile-ad-banner div {
+      width: 100% !important;
+      max-width: 100% !important;
+      height: 60px !important;
+    }
+
+    @media (min-width: 769px) {
+      .mobile-ad-banner { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Left Ads -->
+    <aside class="ad">
+      <div id="yandex_rtb_R-A-16662780-1" style="width: 100%; min-height: 250px;"></div>
+      <div style="height:40px"></div>
+      <div id="yandex_rtb_R-A-16662780-3" style="width: 100%; min-height: 250px;"></div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main">
+      <header class="header">
+        <h1>🔧 Инструменты</h1>
+        <button class="theme-toggle" id="themeToggle">☀️ Светлая</button>
+      </header>
+
+      <section class="tools-list">
+        <!-- Assistant Bot -->
+        <a href="https://soplejuikin.ru/assistant" target="_blank" class="tool-card">
+          <div class="tool-icon">🤖</div>
+          <div class="tool-info">
+            <div class="tool-title">Бот-Валера</div>
+            <div class="tool-desc">Задайте вопрос — получите тупой ответ от AI. Поддержка по читам, настройкам и ошибках.</div>
+          </div>
+        </a>
+
+        <!-- Cheats -->
+        <a href="https://soplejuikin.ru/cheats" target="_blank" class="tool-card">
+          <div class="tool-icon">🔓</div>
+          <div class="tool-info">
+            <div class="tool-title">Читы</div>
+            <div class="tool-desc">Скачайте читы от Soplejuikin бесплатно</div>
+          </div>
+        </a>
+
+        <!-- GitHub links -->
+        <a href="https://soplejuikin.ru/DropFiles/news" target="_blank" class="tool-card">
+          <div class="tool-icon">📣</div>
+          <div class="tool-info">
+            <div class="tool-title"><span class="loading-logo">GitHub <span>ссылок</span></span></div>
+            <div class="tool-desc">Это пул ссылок, опубликованных на DropFile</div>
+          </div>
+        </a>
+
+        <!-- DropFiles -->
+        <a href="https://soplejuikin.ru/DropFiles" target="_blank" class="tool-card">
+          <div class="tool-icon">💵</div>
+          <div class="tool-info">
+            <div class="tool-title">DropFiles</div>
+            <div class="tool-desc">Зарабатывай на своих файлах</div>
+          </div>
+        </a>
+
+        <!-- Video Converter -->
+        <a href="https://soplejuikin.ru/video-converter" target="_blank" class="tool-card">
+          <div class="tool-icon">🎥</div>
+          <div class="tool-info">
+            <div class="tool-title">Конвертер видео</div>
+            <div class="tool-desc">Конвертируйте MP4, AVI, MOV, WEBM. Поддержка 4K и субтитров. Без водяных знаков.</div>
+          </div>
+        </a>
+
+        <!-- Image Converter -->
+        <a href="https://soplejuikin.ru/image-converter" target="_blank" class="tool-card">
+          <div class="tool-icon">🖼️</div>
+          <div class="tool-info">
+            <div class="tool-title">Конвертер фото</div>
+            <div class="tool-desc">JPG, PNG, WEBP — быстро, с пакетной обработкой и оптимизацией для веба.</div>
+          </div>
+        </a>
+
+        <!-- Cheaters Group -->
+        <a href="https://t.me/+OXofQbh0X6BkZjEy" target="_blank" class="tool-card">
+          <div class="tool-icon">ᐈ</div>
+          <div class="tool-info">
+            <div class="tool-title">Группа читеров</div>
+            <div class="tool-desc">Здесь вы можете делиться или узнать что-то полезное для интереса или разработки.</div>
+          </div>
+        </a>
+      </section>
+    </main>
+
+    <!-- Right Ads -->
+    <aside class="ad">
+      <div id="yandex_rtb_R-A-16662780-2" style="width: 100%; min-height: 250px;"></div>
+      <div style="height:40px"></div>
+      <div id="yandex_rtb_R-A-16662780-4" style="width: 100%; min-height: 250px;"></div>
+    </aside>
+  </div>
+
+  <!-- Mobile ad banner -->
+  <div class="mobile-ad-banner">
+    <div id="yandex_rtb_R-A-16662780-mobile"></div>
+  </div>
+
+  <!-- JS -->
+  <script>
+    // Theme handling with persistence
+    const root = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+
+    // Load saved theme or default dark
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    root.setAttribute('data-theme', savedTheme);
+    updateToggleText(savedTheme);
+
+    themeToggle.addEventListener('click', () => {
+      const current = root.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateToggleText(next);
+    });
+
+    function updateToggleText(theme) {
+      if (theme === 'light') {
+        themeToggle.textContent = '🌙 Тёмная';
+      } else {
+        themeToggle.textContent = '☀️ Светлая';
+      }
+    }
+  </script>
+</body>
+</html>
