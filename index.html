@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Локальный видео конвертер (без серверов)</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.1/dist/tailwind.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <script src="https://unpkg.com/@ffmpeg/ffmpeg@0.12.5/dist/ffmpeg.min.js"></script>
+</head>
+<body class="bg-slate-900 min-h-screen flex items-center justify-center p-4">
+  <div class="w-full max-w-xl text-center bg-slate-800/70 backdrop-blur rounded-2xl p-8">
+    <h1 class="text-xl font-bold text-white mb-6 flex items-center justify-center gap-3"><i class="fas fa-video text-blue-400"></i> Локальный видео конвертер</h1>
+
+    <input id="videoInput" type="file" accept="video/*" class="mb-4 text-slate-200" />
+
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-slate-300 mb-1">Формат</label>
+        <select id="format" class="w-full p-2 rounded bg-slate-700/50 text-slate-200">
+          <option value="mp4">MP4</option>
+          <option value="webm">WEBM</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-slate-300 mb-1">Качество (%)</label>
+        <input id="quality" type="number" min="10" max="100" value="80" class="w-full p-2 rounded bg-slate-700/50 text-slate-200" />
+      </div>
+    </div>
+
+    <button id="convert" class="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-3"><i class="fas fa-cogs mr-2"></i>Конвертировать</button>
+
+    <div id="progress" class="mt-4 hidden">
+      <p class="text-slate-300 mb-2">Прогресс: <span id="percent">0%</span></p>
+      <div class="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
+        <div id="bar" class="bg-blue-500 h-3" style="width:0%"></div>
+      </div>
+    </div>
+
+    <a id="download" href="#" download="output.mp4" class="mt-6 inline-block bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 hidden"><i class="fas fa-download mr-2"></i>Скачать</a>
+  </div>
+
+<script>
+  const { createFFmpeg, fetchFile } = FFmpeg;
+  const ffmpeg = createFFmpeg({ log: true });
+  const btn = document.getElementById('convert');
+  const prog = document.getElementById('progress');
+  const bar = document.getElementById('bar');
+  const percent = document.getElementById('percent');
+  const dl = document.getElementById('download');
+
+  btn.addEventListener('click', async () => {
+    const file = document.getElementById('videoInput').files[0];
+    if (!file) return alert('Выберите видео');
+
+    btn.disabled = true; dl.classList.add('hidden');
+    bar.style.width = '0%'; percent.textContent = '0%'; prog.classList.remove('hidden');
+
+    if (!ffmpeg.isLoaded()) await ffmpeg.load();
+
+    ffmpeg.FS('writeFile', 'input', await fetchFile(file));
+
+    const format = document.getElementById('format').value;
+    const q = document.getElementById('quality').value;
+    const crf = 51 - Math.round(q * 0.41);
+
+    const output = `output.${format}`;
+
+    ffmpeg.setProgress(({ ratio }) => {
+      const p = Math.round(ratio * 100);
+      bar.style.width = p + '%';
+      percent.textContent = p + '%';
+    });
+
+    await ffmpeg.run('-i', 'input', '-c:v', 'libx264', '-crf', String(crf), output);
+
+    const data = ffmpeg.FS('readFile', output);
+    const url = URL.createObjectURL(new Blob([data.buffer], { type: 'video/' + format }));
+    dl.href = url; dl.download = output; dl.classList.remove('hidden');
+    btn.disabled = false;
+  });
+</script>
+</body>
+</html>
